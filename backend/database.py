@@ -8,6 +8,18 @@ DEFAULT_DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(_
 def get_db_path():
     if has_app_context() and current_app and current_app.config.get("DATABASE_PATH"):
         return current_app.config["DATABASE_PATH"]
+    
+    # Check if running in Vercel or read-only serverless environment
+    if os.environ.get("VERCEL"):
+        tmp_db = "/tmp/finance.db"
+        if not os.path.exists(tmp_db) and os.path.exists(DEFAULT_DB_PATH):
+            import shutil
+            try:
+                shutil.copy2(DEFAULT_DB_PATH, tmp_db)
+            except Exception:
+                pass
+        return tmp_db
+
     return os.environ.get("DATABASE_PATH", DEFAULT_DB_PATH)
 
 def dict_factory(cursor, row):
@@ -28,7 +40,10 @@ def get_db_connection(db_path=None):
     conn = sqlite3.connect(db_path, timeout=10.0)
     conn.row_factory = dict_factory
     conn.execute("PRAGMA foreign_keys = ON;")
-    conn.execute("PRAGMA journal_mode = WAL;")
+    try:
+        conn.execute("PRAGMA journal_mode = WAL;")
+    except Exception:
+        pass
     return conn
 
 @contextlib.contextmanager

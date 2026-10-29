@@ -22,7 +22,8 @@ def create_app(test_config=None):
     app = Flask(
         __name__,
         template_folder=os.path.join(BASE_DIR, "frontend", "templates"),
-        static_folder=os.path.join(BASE_DIR, "frontend", "static")
+        static_folder=os.path.join(BASE_DIR, "frontend", "static"),
+        static_url_path="/static"
     )
 
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "finance-manager-super-secret-key-2026")
@@ -83,10 +84,11 @@ def create_app(test_config=None):
 
     return app
 
+# Expose top-level application instance for WSGI & Vercel serverless deployment
+app = create_app()
+
 if __name__ == "__main__":
-    app = create_app()
-    # Seed demo user on startup if not present
     seed_demo_user()
     port = int(os.environ.get("PORT", 5000))
-    print(f"Starting Personal Finance Manager on http://localhost:{port}")
+    print(f"Starting Finance Manager on http://localhost:{port}")
     app.run(host="0.0.0.0", port=port, debug=False)
