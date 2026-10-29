@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance Manager</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- AUTH SCREEN -->
+  <div id="auth-screen" class="auth-wrapper">
+    <div class="auth-card">
+      <div style="text-align: center; margin-bottom: 28px;">
+        <div class="brand-logo-mark" style="margin: 0 auto 14px auto;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <h2 style="font-size: 20px; font-weight: 700; color: var(--text-main); letter-spacing: -0.02em;">Finance Manager</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Personal Expense & Budget Ledger</p>
+      </div>
+
+      <div class="auth-tabs">
+        <div id="tab-login" class="auth-tab active" onclick="App.switchAuthTab('login')">Sign In</div>
+        <div id="tab-register" class="auth-tab" onclick="App.switchAuthTab('register')">Register</div>
+      </div>
+
+      <!-- Login Form -->
+      <form id="form-login" onsubmit="App.handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Username or Email</label>
+          <input type="text" id="login-identifier" class="form-control" placeholder="e.g. varshhh or demo" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 10px;">Sign In</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="form-register" style="display: none;" onsubmit="App.handleRegister(event)">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="reg-fullname" class="form-control" placeholder="e.g. Varshith Reddy" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="reg-username" class="form-control" placeholder="varshhh" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="reg-email" class="form-control" placeholder="student@college.edu" required autocomplete="email">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="reg-password" class="form-control" placeholder="Min. 6 chars" minlength="6" required autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Currency</label>
+            <select id="reg-currency" class="form-control">
+              <option value="INR" selected>INR (₹)</option>
+              <option value="USD">USD ($)</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 10px;">Create Account</button>
+      </form>
+
+      <!-- Demo Access Box -->
+      <div class="demo-box" style="margin-top: 24px;">
+        <div style="font-size: 12px; font-weight: 600; color: var(--text-main);">Demo Profile Access</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin: 3px 0 10px 0;">Pre-configured sample student account for testing and evaluation.</div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.handleDemoLogin()" style="width: 100%; justify-content: center; padding: 7px;">
+          Load Demo Account
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP SCREEN -->
+  <div id="app-screen" class="app-container" style="display: none;">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Finance Manager</h1>
+          <p>Expense & Budget System</p>
+        </div>
+      </div>
+
+      <!-- Navigation without emojis, using clean SVG stroke icons -->
+      <nav class="nav-menu">
+        <a class="nav-item active" data-view="dashboard" onclick="App.navigateTo('dashboard')">
+          <svg class="nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item" data-view="transactions" onclick="App.navigateTo('transactions')">
+          <svg class="nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+          <span>Expenses & Income</span>
+        </a>
+        <a class="nav-item" data-view="budgets-goals" onclick="App.navigateTo('budgets-goals')">
+          <svg class="nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="6"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+          </svg>
+          <span>Budgets & Goals</span>
+        </a>
+        <a class="nav-item" data-view="reports" onclick="App.navigateTo('reports')">
+          <svg class="nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span>Analytics</span>
+        </a>
+      </nav>
+
+      <div class="user-profile-widget">
+        <div class="user-info">
+          <div id="user-avatar" class="avatar">VR</div>
+          <div class="user-details">
+            <div id="user-display-name" class="user-name">Varshith Reddy</div>
+            <div id="user-display-email" class="user-email">Student Account</div>
+          </div>
+        </div>
+        <button class="btn-icon" title="Sign Out" onclick="App.handleLogout()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- ================= 1. DASHBOARD VIEW ================= -->
+      <section id="view-dashboard" class="app-view">
+        <div class="page-header">
+          <div class="header-title">
+            <h2>Financial Overview</h2>
+            <p>Pocket money balance and expense summary for <span id="dash-month-label" style="font-weight: 600;"></span>.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" onclick="App.openTransferModal()">Transfer Funds</button>
+            <button class="btn btn-primary" onclick="App.openTransactionModal()">Add Expense</button>
+          </div>
+        </div>
+
+        <!-- Budget Alerts Banner -->
+        <div id="dashboard-alerts-container" style="display: none; margin-bottom: 24px;"></div>
+
+        <!-- Student KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span>Total Available Balance</span>
+              <span class="kpi-badge neutral">Liquid Funds</span>
+            </div>
+            <div id="kpi-net-worth" class="kpi-value">₹0.00</div>
+            <div class="kpi-subtext">Bank, UPI & cash combined</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span>Monthly Inflow</span>
+              <span id="kpi-income-badge" class="kpi-badge positive">Allowance</span>
+            </div>
+            <div id="kpi-income" class="kpi-value" style="color: var(--success);">₹0.00</div>
+            <div id="kpi-income-sub" class="kpi-subtext">Allowance & tutoring</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span>Monthly Expenses</span>
+              <span id="kpi-expense-badge" class="kpi-badge negative">Spend</span>
+            </div>
+            <div id="kpi-expense" class="kpi-value" style="color: var(--danger);">₹0.00</div>
+            <div id="kpi-expense-sub" class="kpi-subtext">Canteen, travel, xerox & bills</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span>Savings Rate</span>
+              <span class="kpi-badge positive">Retained</span>
+            </div>
+            <div id="kpi-savings-rate" class="kpi-value">0%</div>
+            <div id="kpi-net-savings-sub" class="kpi-subtext">Remaining: ₹0.00</div>
+          </div>
+        </div>
+
+        <!-- Accounts Quick View Row -->
+        <div class="card" style="margin-bottom: 24px; padding: 18px 22px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="font-size: 14px; font-weight: 600; color: var(--text-main);">Accounts & Wallets</h3>
+            <button class="btn btn-secondary btn-sm" onclick="App.openAccountModal()">Add Account</button>
+          </div>
+          <div id="dash-accounts-pills" style="display: flex; gap: 12px; flex-wrap: wrap;"></div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="dashboard-grid">
+          <!-- Monthly Trend Chart -->
+          <div class="card" style="margin-bottom: 0;">
+            <div class="card-header">
+              <h3 class="card-title">Allowance vs Spending History</h3>
+              <div class="legend-item" style="font-size: 12px; gap: 12px;">
+                <span style="display: flex; align-items: center; gap: 4px;"><span class="legend-color" style="background: #10B981;"></span> Inflow</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><span class="legend-color" style="background: #EF4444;"></span> Outflow</span>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="chart-monthly-trends"></canvas>
+            </div>
+          </div>
+
+          <!-- Category Spending Donut -->
+          <div class="card" style="margin-bottom: 0;">
+            <div class="card-header">
+              <h3 class="card-title">Expense Distribution</h3>
+            </div>
+            <div class="chart-container" style="height: 180px;">
+              <canvas id="chart-category-donut"></canvas>
+            </div>
+            <div id="dash-category-list" class="cat-breakdown-list"></div>
+          </div>
+        </div>
+
+        <!-- Bottom Grid: Recent Transactions & Savings Goals -->
+        <div class="dashboard-grid" style="margin-top: 24px;">
+          <!-- Recent Transactions -->
+          <div class="card" style="margin-bottom: 0;">
+            <div class="card-header">
+              <h3 class="card-title">Recent Transactions</h3>
+              <a class="card-action" onclick="App.navigateTo('transactions')">View all</a>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Account</th>
+                    <th style="text-align: right;">Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="dash-recent-txns">
+                  <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading transactions...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Savings Goals Progress -->
+          <div class="card" style="margin-bottom: 0;">
+            <div class="card-header">
+              <h3 class="card-title">Active Goals</h3>
+              <a class="card-action" onclick="App.navigateTo('budgets-goals')">Manage goals</a>
+            </div>
+            <div id="dash-goals-list" style="display: flex; flex-direction: column; gap: 16px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. TRANSACTIONS VIEW ================= -->
+      <section id="view-transactions" class="app-view" style="display: none;">
+        <div class="page-header">
+          <div class="header-title">
+            <h2>Transaction Records</h2>
+            <p>Log of canteen expenses, xerox charges, travel, and allowances.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" onclick="App.handleExportCSV()">Export CSV</button>
+            <button class="btn btn-secondary" onclick="App.openTransferModal()">Transfer</button>
+            <button class="btn btn-primary" onclick="App.openTransactionModal()">Add Entry</button>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <input type="text" id="txn-filter-search" class="filter-input" placeholder="Search description, notes..." style="flex: 2; min-width: 200px;" oninput="App.applyTxnFilters()">
+          <select id="txn-filter-type" class="filter-select" onchange="App.applyTxnFilters()">
+            <option value="">All Types</option>
+            <option value="expense">Expenses Only</option>
+            <option value="income">Income Only</option>
+            <option value="transfer">Transfers Only</option>
+          </select>
+          <select id="txn-filter-category" class="filter-select" onchange="App.applyTxnFilters()">
+            <option value="">All Categories</option>
+          </select>
+          <select id="txn-filter-account" class="filter-select" onchange="App.applyTxnFilters()">
+            <option value="">All Accounts</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" onclick="App.resetTxnFilters()">Reset</button>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Type</th>
+                  <th>Category</th>
+                  <th>Account</th>
+                  <th style="text-align: right;">Amount</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="transactions-table-body">
+                <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading transactions...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; font-size: 13px; color: var(--text-muted);">
+            <div>Showing <span id="txn-page-info">0 of 0</span> entries</div>
+            <div style="display: flex; gap: 8px;">
+              <button id="btn-prev-page" class="btn btn-secondary btn-sm" onclick="App.changeTxnPage(-1)" disabled>Previous</button>
+              <button id="btn-next-page" class="btn btn-secondary btn-sm" onclick="App.changeTxnPage(1)" disabled>Next</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. COMBINED BUDGETS & SAVINGS GOALS VIEW ================= -->
+      <section id="view-budgets-goals" class="app-view" style="display: none;">
+        <!-- Monthly Spending Limits -->
+        <div class="page-header">
+          <div class="header-title">
+            <h2>Monthly Budget Caps</h2>
+            <p>Set spending limits on Canteen, Xerox, Travel, and Outings.</p>
+          </div>
+          <div class="header-actions" style="display: flex; gap: 8px; align-items: center;">
+            <input type="month" id="budget-month-selector" class="filter-input" style="padding: 7px 12px; font-size: 13px; font-weight: 500;" value="2026-10" onchange="App.loadBudgets()">
+            <button class="btn btn-primary" onclick="App.openBudgetModal()">Set Category Budget</button>
+          </div>
+        </div>
+
+        <!-- Overall Budget Summary Bar -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <span style="font-size: 13px; color: var(--text-muted);">Total Budgeted Spending</span>
+              <div style="font-size: 22px; font-weight: 700; margin-top: 2px;">
+                <span id="budget-total-spent">₹0.00</span>
+                <span style="font-size: 15px; font-weight: 400; color: var(--text-muted);">of <span id="budget-total-limit">₹0.00</span></span>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <span style="font-size: 13px; color: var(--text-muted);">Remaining Budget</span>
+              <div id="budget-total-remaining" style="font-size: 18px; font-weight: 700; color: var(--success);">₹0.00</div>
+            </div>
+          </div>
+          <div class="progress-container" style="height: 10px;">
+            <div id="budget-overall-bar" class="progress-bar success" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Individual Budgets Cards Grid -->
+        <div id="budgets-cards-grid" class="cards-grid" style="margin-bottom: 40px;"></div>
+
+        <!-- Savings Goals -->
+        <div class="page-header" style="border-top: 1px solid var(--border); padding-top: 28px;">
+          <div class="header-title">
+            <h2>Savings Goals</h2>
+            <p>Milestone targets for student projects, travel, and certifications.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-primary" onclick="App.openGoalModal()">New Goal</button>
+          </div>
+        </div>
+
+        <!-- Goals Summary KPIs -->
+        <div class="kpi-grid" style="margin-bottom: 24px;">
+          <div class="kpi-card">
+            <div class="kpi-card-header"><span>Active Goals</span></div>
+            <div id="goals-kpi-count" class="kpi-value">0</div>
+            <div id="goals-kpi-completed" class="kpi-subtext">0 completed</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card-header"><span>Total Target</span></div>
+            <div id="goals-kpi-target" class="kpi-value">₹0.00</div>
+            <div class="kpi-subtext">Combined targets</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card-header"><span>Total Saved</span></div>
+            <div id="goals-kpi-saved" class="kpi-value" style="color: var(--success);">₹0.00</div>
+            <div id="goals-kpi-pct" class="kpi-subtext">0% achieved</div>
+          </div>
+        </div>
+
+        <!-- Goals Cards Grid -->
+        <div id="goals-cards-grid" class="cards-grid"></div>
+      </section>
+
+      <!-- ================= 4. REPORTS / SPENDING ANALYTICS VIEW ================= -->
+      <section id="view-reports" class="app-view" style="display: none;">
+        <div class="page-header">
+          <div class="header-title">
+            <h2>Spending Analytics</h2>
+            <p>Monthly trends and breakdown of expenditure.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" onclick="App.handleExportCSV()">Export CSV</button>
+          </div>
+        </div>
+
+        <!-- Reports KPI Row -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-card-header"><span>Total Inflow</span></div>
+            <div id="report-kpi-income" class="kpi-value" style="color: var(--success);">₹0.00</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card-header"><span>Total Outflow</span></div>
+            <div id="report-kpi-expense" class="kpi-value" style="color: var(--danger);">₹0.00</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card-header"><span>Net Savings</span></div>
+            <div id="report-kpi-net" class="kpi-value">₹0.00</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card-header"><span>Retention Rate</span></div>
+            <div id="report-kpi-rate" class="kpi-value">0%</div>
+          </div>
+        </div>
+
+        <!-- Cash Flow Line Chart -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Net Cash Flow History</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-report-cashflow"></canvas>
+          </div>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Category Breakdown</h3>
+            </div>
+            <div class="chart-container">
+              <canvas id="chart-report-spending"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Top Expense Categories</h3>
+            </div>
+            <div id="report-spending-table" class="cat-breakdown-list"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. Transaction Modal -->
+  <div id="modal-transaction" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-txn-title" class="modal-title">Record Transaction</h3>
+        <button class="btn-icon" onclick="App.closeModals()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <form id="form-transaction" onsubmit="App.handleSaveTransaction(event)">
+        <input type="hidden" id="txn-edit-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Type</label>
+            <div style="display: flex; gap: 8px;">
+              <label style="flex: 1; text-align: center; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; cursor: pointer; font-size: 13px;">
+                <input type="radio" name="txn-type" value="expense" checked onchange="App.handleTxnTypeChange()"> Expense
+              </label>
+              <label style="flex: 1; text-align: center; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; cursor: pointer; font-size: 13px;">
+                <input type="radio" name="txn-type" value="income" onchange="App.handleTxnTypeChange()"> Income
+              </label>
+              <label style="flex: 1; text-align: center; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; cursor: pointer; font-size: 13px;">
+                <input type="radio" name="txn-type" value="transfer" onchange="App.handleTxnTypeChange()"> Transfer
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Amount</label>
+              <input type="number" step="0.01" min="1" id="txn-amount" class="form-control" placeholder="0.00" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input type="date" id="txn-date" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <input type="text" id="txn-description" class="form-control" placeholder="e.g. Canteen lunch, Xerox printouts, Metro card" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label id="txn-account-label" class="form-label">Account / Wallet</label>
+              <select id="txn-account-id" class="form-control" required></select>
+            </div>
+            <div id="txn-to-account-group" class="form-group" style="display: none;">
+              <label class="form-label">Destination Account</label>
+              <select id="txn-to-account-id" class="form-control"></select>
+            </div>
+            <div id="txn-category-group" class="form-group">
+              <label class="form-label">Category</label>
+              <select id="txn-category-id" class="form-control"></select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Notes (Optional)</label>
+            <input type="text" id="txn-notes" class="form-control" placeholder="Optional details">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Transfer Modal -->
+  <div id="modal-transfer" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Transfer Funds</h3>
+        <button class="btn-icon" onclick="App.closeModals()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <form id="form-transfer" onsubmit="App.handleSaveTransfer(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">From Account</label>
+              <select id="transfer-from-id" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">To Account</label>
+              <select id="transfer-to-id" class="form-control" required></select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Amount</label>
+              <input type="number" step="0.01" min="1" id="transfer-amount" class="form-control" placeholder="0.00" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input type="date" id="transfer-date" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <input type="text" id="transfer-desc" class="form-control" value="Funds Transfer" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Execute Transfer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Account Modal -->
+  <div id="modal-account" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-acc-title" class="modal-title">Add Account or Wallet</h3>
+        <button class="btn-icon" onclick="App.closeModals()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <form id="form-account" onsubmit="App.handleSaveAccount(event)">
+        <input type="hidden" id="account-edit-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Account Name</label>
+            <input type="text" id="acc-name" class="form-control" placeholder="e.g. SBI Savings, GPay, Cash" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <select id="acc-type" class="form-control" required>
+                <option value="checking">UPI / Digital Wallet</option>
+                <option value="savings">Savings Account</option>
+                <option value="cash">Cash in Hand</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Balance</label>
+              <input type="number" step="0.01" id="acc-initial-balance" class="form-control" placeholder="0.00" required>
+            </div>
+          </div>
+          <input type="hidden" id="acc-currency" value="INR">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Budget Modal -->
+  <div id="modal-budget" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Set Category Budget Limit</h3>
+        <button class="btn-icon" onclick="App.closeModals()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <form id="form-budget" onsubmit="App.handleSaveBudget(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="budget-category-id" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monthly Limit (INR)</label>
+            <input type="number" step="1" min="10" id="budget-amount-limit" class="form-control" placeholder="e.g. 1500" required>
+          </div>
+          <input type="hidden" id="budget-form-month">
+          <input type="hidden" id="budget-threshold" value="0.80">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Budget</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Savings Goal Modal -->
+  <div id="modal-goal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-goal-title" class="modal-title">New Savings Goal</h3>
+        <button class="btn-icon" onclick="App.closeModals()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <form id="form-goal" onsubmit="App.handleSaveGoal(event)">
+        <input type="hidden" id="goal-edit-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Goal Title</label>
+            <input type="text" id="goal-name" class="form-control" placeholder="e.g. Goa Trip, New Laptop, Exam Fee" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Target Amount</label>
+              <input type="number" step="1" min="100" id="goal-target" class="form-control" placeholder="e.g. 10000" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Savings</label>
+              <input type="number" step="1" min="0" id="goal-current" class="form-control" placeholder="0" value="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Date</label>
+            <input type="date" id="goal-date" class="form-control">
+          </div>
+          <input type="hidden" id="goal-color" value="#2563EB">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Goal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. Goal Contribution Modal -->
+  <div id="modal-contribute" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Contribution</h3>
+        <button class="btn-icon" onclick="App.closeModals()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <form id="form-contribute" onsubmit="App.handleSaveContribution(event)">
+        <input type="hidden" id="contribute-goal-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Goal</label>
+            <input type="text" id="contribute-goal-name" class="form-control" readonly style="background: var(--bg-main);">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Contribution Amount</label>
+              <input type="number" step="1" min="1" id="contribute-amount" class="form-control" placeholder="0" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input type="date" id="contribute-date" class="form-control" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Deduct From Account (Optional)</label>
+            <select id="contribute-account-id" class="form-control">
+              <option value="">Do not deduct from balance</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Contribution</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/charts.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

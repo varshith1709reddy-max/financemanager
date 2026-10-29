@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  apex-finance:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: apex-finance-manager:latest
+    container_name: apex-finance-app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - SECRET_KEY=apex-finance-production-secret-key-replace-in-prod
+      - DATABASE_PATH=/app/data/finance.db
+    volumes:
+      - finance_data:/app/data
+
+volumes:
+  finance_data:
+    driver: local
